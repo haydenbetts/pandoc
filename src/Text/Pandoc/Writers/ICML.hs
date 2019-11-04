@@ -323,7 +323,7 @@ blockToICML opts style (Header lvl (_, cls, _) lst) =
                    else ""
   in parStyle opts stl lst
 blockToICML _ _ HorizontalRule = return empty -- we could insert a page break instead
-blockToICML opts style (Table caption aligns widths headers rows) =
+blockToICML opts style (ETable caption aligns widths headers rows kvs) =
   let style' = tableName : style
       noHeader  = all null headers
       nrHeaders = if noHeader
@@ -359,8 +359,20 @@ blockToICML opts style (Table caption aligns widths headers rows) =
             [("SingleColumnWidth",show $ 500 * w) | w > 0]
       let tupToDoc tup = selfClosingTag "Column" $ ("Name",show $ fst tup) : colWidths (snd tup)
       let colDescs = vcat $ zipWith (curry tupToDoc) [0..nrCols-1] widths
+
+      -- let dynamicStyle = do
+      --                    result <- (lookup dynamicStyleKey kvs)
+      --                    case result of
+      --                     Nothing -> return ""
+      --                     _ -> return "bloop"
+
+        
+        -- if (lookup dynamicStyleKey kvs)
+        --                  then return (lookup dynamicStyleKey kvs)
+        --                  else return "heeelo";
+
       let tableDoc = return $ inTags True "Table" [
-                         ("AppliedTableStyle","TableStyle/Table")
+                         ("AppliedTableStyle",("TableStyle/" ++ (snd $ (head $ kvs))))
                        , ("HeaderRowCount", nrHeaders)
                        , ("BodyRowCount", show nrRows)
                        , ("ColumnCount", show nrCols)

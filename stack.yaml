@@ -13,7 +13,9 @@ packages:
 - '.'
 extra-deps:
 - pandoc-citeproc-0.16.3
-- pandoc-types-1.17.6.1
+# - pandoc-types-1.17.6.1
+- github: haydenbetts/pandoc-types
+  commit: ffc1fd4533db40ca3eeae95fa586ce453eeb8ddf
 - texmath-0.11.3
 - haddock-library-1.8.0
 - skylighting-0.8.2.3

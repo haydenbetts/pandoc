@@ -482,7 +482,7 @@ pHrule = do
 
 pTable :: PandocMonad m => TagParser m Blocks
 pTable = try $ do
-  TagOpen _ _ <- pSatisfy (matchTagOpen "table" [])
+  TagOpen _ attr' <- pSatisfy (matchTagOpen "table" [])
   skipMany pBlank
   caption <- option mempty $ pInTags "caption" inline <* skipMany pBlank
   widths' <- (mconcat <$> many1 pColgroup) <|> many pCol
@@ -519,7 +519,10 @@ pTable = try $ do
                        then replicate cols 0
                        else replicate cols (1.0 / fromIntegral cols)
                   else widths'
-  return $ B.table caption (zip aligns widths) head' rows
+
+  let (ids,cs,kvs) = mkAttr . toStringAttr $ attr'
+  
+  return $ B.eTable caption (zip aligns widths) head' rows kvs
 
 pCol :: PandocMonad m => TagParser m Double
 pCol = try $ do
