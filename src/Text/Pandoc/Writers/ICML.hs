@@ -295,6 +295,10 @@ blocksToICML opts style lst = do
   docs <- mapM (blockToICML opts style) lst
   return $ intersperseBrs docs
 
+maybeToString :: Maybe String -> String -> String
+maybeToString (Just x) y = x
+maybeToString Nothing y  = y
+
 -- | Convert a Pandoc block element to ICML.
 blockToICML :: PandocMonad m => WriterOptions -> Style -> Block -> WS m (Doc Text)
 blockToICML opts style (Plain lst) = parStyle opts style lst
@@ -360,19 +364,10 @@ blockToICML opts style (ETable caption aligns widths headers rows kvs) =
       let tupToDoc tup = selfClosingTag "Column" $ ("Name",show $ fst tup) : colWidths (snd tup)
       let colDescs = vcat $ zipWith (curry tupToDoc) [0..nrCols-1] widths
 
-      -- let dynamicStyle = do
-      --                    result <- (lookup dynamicStyleKey kvs)
-      --                    case result of
-      --                     Nothing -> return ""
-      --                     _ -> return "bloop"
-
-        
-        -- if (lookup dynamicStyleKey kvs)
-        --                  then return (lookup dynamicStyleKey kvs)
-        --                  else return "heeelo";
+      let dynamicStyle = maybeToString (lookup dynamicStyleKey kvs) "Table"
 
       let tableDoc = return $ inTags True "Table" [
-                         ("AppliedTableStyle",("TableStyle/" ++ (snd $ (head $ kvs))))
+                         ("AppliedTableStyle",("TableStyle/" ++ dynamicStyle))
                        , ("HeaderRowCount", nrHeaders)
                        , ("BodyRowCount", show nrRows)
                        , ("ColumnCount", show nrCols)
